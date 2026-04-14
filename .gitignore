@@ -1,1 +1,26 @@
+# Binários compilados
+dist/
+*.exe
+*.AppImage
+*.dmg
+
+# Go
+*.test
+*.out
+vendor/
+
+# Java / Maven
 target/
+assinador/target/
+*.class
+*.jar
+*.war
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# Sistema
+.DS_Store
+Thumbs.db
