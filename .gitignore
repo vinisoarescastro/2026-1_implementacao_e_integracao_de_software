@@ -1,13 +1,11 @@
 # Binários compilados
 dist/
-*.exe
-*.AppImage
-*.dmg
 
 # Go
 *.test
 *.out
 vendor/
+.gocache/
 
 # Java / Maven
 target/
@@ -24,3 +22,6 @@ assinador/target/
 # Sistema
 .DS_Store
 Thumbs.db
+*.exe
+*.AppImage
+*.dmg

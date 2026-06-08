@@ -1,4 +1,4 @@
-package com.kyriosdata.assinador;
+package com.kyriosdata.assinador.service;
 
 import com.kyriosdata.assinador.domain.SignRequest;
 import com.kyriosdata.assinador.domain.SignatureResponse;

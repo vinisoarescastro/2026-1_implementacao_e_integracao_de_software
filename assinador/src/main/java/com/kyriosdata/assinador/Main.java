@@ -3,6 +3,8 @@ package com.kyriosdata.assinador;
 import com.kyriosdata.assinador.domain.SignRequest;
 import com.kyriosdata.assinador.domain.SignatureResponse;
 import com.kyriosdata.assinador.domain.ValidateRequest;
+import com.kyriosdata.assinador.service.FakeSignatureService;
+import com.kyriosdata.assinador.service.SignatureService;
 
 /**
  * Ponto de entrada do assinador.jar.

@@ -1,4 +1,4 @@
-package com.kyriosdata.assinador;
+package com.kyriosdata.assinador.service;
 
 import com.kyriosdata.assinador.domain.SignRequest;
 import com.kyriosdata.assinador.domain.SignatureResponse;
@@ -12,7 +12,7 @@ import com.kyriosdata.assinador.domain.ValidateRequest;
  */
 public class FakeSignatureService implements SignatureService {
 
-    static final String FAKE_SIGNATURE = "MOCKED_SIGNATURE_BASE64_==";
+    public static final String FAKE_SIGNATURE = "MOCKED_SIGNATURE_BASE64_==";
 
     @Override
     public SignatureResponse sign(SignRequest request) {
