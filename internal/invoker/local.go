@@ -80,7 +80,11 @@ func runJar(javaPath, operation, content, token, signature string) (*Result, err
 		return nil, err
 	}
 
-	args := []string{"-jar", jar, operation, content}
+	args := []string{
+		"-Dfile.encoding=UTF-8",
+		"-Dstdout.encoding=UTF-8",
+		"-jar", jar, operation, content,
+	}
 	if token != "" {
 		args = append(args, token)
 	}

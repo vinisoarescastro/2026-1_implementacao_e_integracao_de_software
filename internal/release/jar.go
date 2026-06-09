@@ -63,8 +63,19 @@ func EnsureJar(hubsaudeDir string) (string, error) {
 	return jarPath, nil
 }
 
-// fetchManifest baixa e interpreta o release.json remoto.
+// fetchManifest lê o release.json: tenta arquivo local primeiro, depois remoto.
+// Arquivo local: ./release.json (raiz do projeto, presente em desenvolvimento).
+// Arquivo remoto: URL estável no branch main do repositório.
 func fetchManifest() (*releaseManifest, error) {
+	// 1. Tenta release.json local (presente ao rodar direto do repositório)
+	if data, err := os.ReadFile("release.json"); err == nil {
+		var m releaseManifest
+		if err := json.Unmarshal(data, &m); err == nil && m.JAR.URL != "" && m.JAR.Version != "" {
+			return &m, nil
+		}
+	}
+
+	// 2. Busca release.json remoto
 	client := &http.Client{Timeout: httpTimeout}
 	resp, err := client.Get(releaseJSONURL)
 	if err != nil {
