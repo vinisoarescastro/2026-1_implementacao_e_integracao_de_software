@@ -3,6 +3,7 @@
 package invoker
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -41,22 +42,21 @@ func jarPath() (string, error) {
 }
 
 // Sign invoca o assinador.jar para criar uma assinatura simulada.
-// Se local=true usa java -jar diretamente; caso contrário usa HTTP (Sprint 3).
+// Por padrão usa o modo servidor (HTTP); --local força invocação direta via java -jar.
 func Sign(javaPath, content, token string, local bool) (*Result, error) {
-	if !local {
-		// HTTP mode será implementado na Sprint 3
-		return nil, fmt.Errorf("modo servidor HTTP ainda não implementado — use --local por enquanto")
+	if local {
+		return runJar(javaPath, "sign", content, token, "")
 	}
-	return runJar(javaPath, "sign", content, token, "")
+	return signViaHTTP(content, token)
 }
 
 // Validate invoca o assinador.jar para validar uma assinatura simulada.
-// Se local=true usa java -jar diretamente; caso contrário usa HTTP (Sprint 3).
+// Por padrão usa o modo servidor (HTTP); --local força invocação direta via java -jar.
 func Validate(javaPath, content, signature string, local bool) (*Result, error) {
-	if !local {
-		return nil, fmt.Errorf("modo servidor HTTP ainda não implementado — use --local por enquanto")
+	if local {
+		return runJar(javaPath, "validate", content, "", signature)
 	}
-	return runJar(javaPath, "validate", content, "", signature)
+	return validateViaHTTP(content, signature)
 }
 
 // runJar executa o assinador.jar com os argumentos fornecidos e interpreta
@@ -79,24 +79,27 @@ func runJar(javaPath, operation, content, token, signature string) (*Result, err
 		args = append(args, signature)
 	}
 
+	var stdout, stderr bytes.Buffer
 	cmd := exec.Command(javaPath, args...)
-	out, err := cmd.Output()
-	if err != nil {
-		// Captura stderr para mensagem de erro mais clara
-		if exitErr, ok := err.(*exec.ExitError); ok {
-			return nil, fmt.Errorf("assinador.jar retornou erro:\n%s", string(exitErr.Stderr))
-		}
-		return nil, fmt.Errorf("falha ao executar assinador.jar: %w", err)
-	}
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 
+	runErr := cmd.Run()
+
+	// Tenta interpretar stdout como JSON antes de checar o exit code.
+	// O JAR sempre emite JSON válido; exit code != 0 indica resultado de negócio (inválido),
+	// não necessariamente falha de sistema.
 	var result Result
-	if err := json.Unmarshal(out, &result); err != nil {
-		return nil, fmt.Errorf("resposta inválida do assinador.jar: %w\nSaída bruta: %s", err, out)
+	if jsonErr := json.Unmarshal(stdout.Bytes(), &result); jsonErr != nil {
+		// Sem JSON válido: erro de sistema (JVM não encontrada, JAR corrompido, etc.)
+		if runErr != nil && stderr.Len() > 0 {
+			return nil, fmt.Errorf("assinador.jar falhou: %s", stderr.String())
+		}
+		return nil, fmt.Errorf("resposta inválida do assinador.jar: %w\nSaída: %s", jsonErr, stdout.String())
 	}
 
-	if !result.Valid && result.Message != "" {
-		return &result, fmt.Errorf("%s", result.Message)
-	}
-
+	// JSON obtido com sucesso — retorna o resultado sem erro, mesmo quando valid=false.
+	// O chamador decide como apresentar resultado inválido ao usuário.
+	_ = runErr
 	return &result, nil
 }

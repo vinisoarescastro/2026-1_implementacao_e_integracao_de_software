@@ -6,6 +6,9 @@ import com.kyriosdata.assinador.domain.ValidateRequest;
 import com.kyriosdata.assinador.service.FakeSignatureService;
 import com.kyriosdata.assinador.service.SignatureService;
 
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+
 /**
  * Ponto de entrada do assinador.jar.
  *
@@ -20,6 +23,9 @@ import com.kyriosdata.assinador.service.SignatureService;
 public class Main {
 
     public static void main(String[] args) {
+        // Força UTF-8 em stdout para evitar corrupção de caracteres em qualquer plataforma
+        System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
+
         if (args.length < 2) {
             printError("Uso: assinador.jar <operação> <content> [token|signature]");
             System.exit(1);
