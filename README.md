@@ -6,8 +6,8 @@ O **Sistema Runner** é um conjunto de ferramentas CLI que permite executar apli
 
 | Componente      | Tecnologia | Descrição                                                                   |
 |-----------------|------------|-----------------------------------------------------------------------------|
-| `assinatura`    | Go 1.24    | CLI para criação e validação de assinaturas digitais simuladas              |
-| `simulador`     | Go 1.24    | CLI para gerenciar o ciclo de vida do Simulador do HubSaúde                |
+| `assinatura`    | Go 1.25    | CLI para criação e validação de assinaturas digitais simuladas              |
+| `simulador`     | Go 1.25    | CLI para gerenciar o ciclo de vida do Simulador do HubSaúde                |
 | `assinador.jar` | Java 21    | Serviço de assinatura/validação (modo local via `java -jar` e modo HTTP)   |
 
 ---
@@ -79,10 +79,12 @@ O **Sistema Runner** é um conjunto de ferramentas CLI que permite executar apli
 
 ## Pré-requisitos
 
-- [Go 1.24+](https://go.dev/dl/)
-- [Java 21 JDK](https://adoptium.net/) — ou deixe o CLI provisionar automaticamente (Sprint 2)
-- [Maven 3.9+](https://maven.apache.org/) — para compilar o `assinador.jar`
-- [Cosign](https://docs.sigstore.dev/cosign/system_config/installation/) — para verificar artefatos (opcional)
+| Ferramenta | Obrigatório | Descrição |
+|---|---|---|
+| [Go 1.25+](https://go.dev/dl/) | Sim | Para compilar e rodar os CLIs |
+| Java 21 JDK | Não | Baixado automaticamente pelo CLI se ausente |
+| [Maven 3.9+](https://maven.apache.org/) | Apenas dev | Para compilar o `assinador.jar` localmente |
+| [Cosign](https://docs.sigstore.dev/cosign/system_config/installation/) | Não | Para verificar artefatos do GitHub Releases |
 
 ---
 
@@ -128,41 +130,54 @@ GOOS=darwin  GOARCH=amd64 go build -ldflags "-X github.com/kyriosdata/runner/cmd
 
 ---
 
-## Uso
+## Como rodar (desenvolvimento)
+
+Os CLIs são executados com `go run` a partir da raiz do repositório. Não é necessário instalar o binário.
+
+> O `assinador.jar` e o JDK 21 são baixados automaticamente na primeira execução se não estiverem disponíveis localmente.
 
 ### CLI `assinatura`
 
-```bash
-# Versão
-assinatura version
+```powershell
+# Ver a versão
+go run ./cmd/assinatura version
+go run ./cmd/assinatura --version
 
 # Assinar (modo local — invoca java -jar diretamente)
-assinatura sign --content "documento.pdf" --token "meu-token" --local
+go run ./cmd/assinatura sign --local --content "documento.pdf"
+go run ./cmd/assinatura sign --local --content "documento.pdf" --token "meu-pin"
 
-# Assinar (modo servidor HTTP — padrão, Sprint 3)
-assinatura sign --content "documento.pdf" --token "meu-token"
+# Validar assinatura (modo local)
+go run ./cmd/assinatura validate --local --content "documento.pdf" --signature "MOCKED_SIGNATURE_BASE64_=="
 
-# Validar assinatura
-assinatura validate --content "documento.pdf" --signature "MOCKED_SIGNATURE_BASE64_=="
+# Assinar via servidor HTTP (padrão — requer assinatura start, Sprint 3)
+go run ./cmd/assinatura sign --content "documento.pdf"
 
-# Iniciar assinador.jar como servidor HTTP (Sprint 3)
-assinatura start [--port 8080] [--timeout 30]
-
-# Encerrar servidor (Sprint 3)
-assinatura stop [--port 8080]
+# Ajuda
+go run ./cmd/assinatura --help
+go run ./cmd/assinatura sign --help
 ```
 
 ### CLI `simulador`
 
-```bash
+```powershell
 # Iniciar o Simulador do HubSaúde (Sprint 4)
-simulador start [--source <url-alternativa>]
+go run ./cmd/simulador start
 
 # Parar o simulador (Sprint 4)
-simulador stop
+go run ./cmd/simulador stop
 
 # Verificar status (Sprint 4)
-simulador status
+go run ./cmd/simulador status
+```
+
+### Compilar o binário (opcional)
+
+Se preferir rodar sem `go run`:
+
+```powershell
+go build -o assinatura.exe ./cmd/assinatura
+.\assinatura.exe sign --local --content "documento.pdf"
 ```
 
 ---

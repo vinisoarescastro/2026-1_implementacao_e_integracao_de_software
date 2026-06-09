@@ -4,29 +4,35 @@ O Sistema Runner é um conjunto de ferramentas de linha de comando (CLI) que per
 
 ## Pré-requisitos
 
-| Ferramenta | Versão mínima | Como verificar |
+| Ferramenta | Obrigatório | Como verificar |
 |---|---|---|
-| Go | 1.25 | `go version` |
-| Java JDK | 21 | `java -version` |
-| Maven | 3.9 | `mvn -version` |
+| Go | Sim (v1.25+) | `go version` |
+| Java JDK 21 | Não — baixado automaticamente se ausente | `java -version` |
+| Maven | Não — apenas para desenvolvimento | `mvn -version` |
+
+> O CLI detecta o JDK automaticamente na seguinte ordem: `~/.hubsaude/jdk/` → PATH do sistema → **download automático** do Eclipse Temurin 21.
 
 ---
 
 ## 1. Configuração inicial (primeira vez)
 
-Estes passos só precisam ser feitos uma vez.
+O CLI gerencia o `assinador.jar` e o JDK automaticamente. Na primeira execução, ele verifica a versão mais recente no repositório e faz o download se necessário.
 
-### 1.1. Compilar o assinador.jar
+Se preferir compilar o JAR localmente (modo desenvolvimento), siga os passos opcionais abaixo:
+
+### 1.1. (Opcional) Compilar o assinador.jar localmente
 
 Na raiz do projeto, execute:
 
-```bash
+```powershell
 mvn -f assinador/pom.xml package -q
 ```
 
-O comando gera o arquivo `assinador/target/assinador.jar`.
+O comando gera `assinador/target/assinador.jar`.
 
-### 1.2. Instalar o JAR no diretório do Runner
+### 1.2. (Opcional) Instalar o JAR manualmente
+
+Use este passo apenas se quiser forçar o uso da versão compilada localmente em vez da versão baixada automaticamente.
 
 **Windows (PowerShell):**
 ```powershell
@@ -40,15 +46,17 @@ mkdir -p ~/.hubsaude
 cp assinador/target/assinador.jar ~/.hubsaude/assinador.jar
 ```
 
-O CLI sempre procura o JAR em `~/.hubsaude/assinador.jar`.
+O CLI procura o JAR em `~/.hubsaude/assinador.jar`. A versão local tem precedência sobre o download automático.
 
 ---
 
 ## 2. Usando o CLI `assinatura`
 
-Todos os comandos abaixo devem ser executados na raiz do projeto com `go run ./cmd/assinatura`.
+Todos os comandos são executados na **raiz do projeto** com `go run ./cmd/assinatura`.
 
-> **Dica:** após compilar o binário com `go build -o assinatura ./cmd/assinatura`, você pode trocar `go run ./cmd/assinatura` por `./assinatura` em todos os exemplos.
+> **Por que `go run`?** O binário `assinatura` não está instalado no sistema — `go run` compila e executa na hora, sem precisar instalar nada. É a forma recomendada para desenvolvimento.
+>
+> **Quer usar sem `go run`?** Compile uma vez com `go build -o assinatura.exe ./cmd/assinatura` e use `.\assinatura.exe` no lugar de `go run ./cmd/assinatura` em todos os exemplos abaixo.
 
 ### 2.1. Ver a versão
 
@@ -191,13 +199,13 @@ O CLI tentou usar o modo HTTP (padrão) mas o servidor não está rodando. Use `
 go run ./cmd/assinatura sign --local --content "documento.pdf"
 ```
 
-### "assinador.jar não encontrado"
+### "assinador.jar não encontrado e não foi possível baixá-lo"
 
-O JAR não está em `~/.hubsaude/`. Repita o [Passo 1.2](#12-instalar-o-jar-no-diretório-do-runner).
+O CLI tentou baixar o JAR automaticamente mas não conseguiu. Verifique a conexão com a internet e tente novamente. Como alternativa, compile localmente seguindo o [Passo 1.1](#11-opcional-compilar-o-assinadorjar-localmente).
 
-### "não foi possível localizar ou provisionar o JDK"
+### "JDK não encontrado e download automático falhou"
 
-O Java 21 não está instalado ou não está no PATH. Instale o JDK 21 (recomendado: [Eclipse Temurin](https://adoptium.net/)) e tente novamente.
+O CLI tentou baixar o JRE 21 automaticamente mas não conseguiu. Instale manualmente o [Eclipse Temurin 21](https://adoptium.net/) e adicione ao PATH. Na próxima execução, o CLI usará o Java do sistema.
 
 ### Caracteres estranhos na saída (Windows)
 
