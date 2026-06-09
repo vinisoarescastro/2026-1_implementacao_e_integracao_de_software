@@ -65,12 +65,12 @@ go run ./cmd/assinatura version
 go run ./cmd/assinatura --version
 ```
 
-Saída esperada:
+Saída esperada em desenvolvimento:
 ```
 assinatura dev windows/amd64
 ```
 
-Ambas as formas funcionam. Em binários publicados via GitHub Releases, `dev` é substituído pela versão da tag (ex.: `v0.2.0`).
+Em binários publicados via GitHub Releases, `dev` é substituído pela versão rastreável da tag e SHA curto do commit (ex.: `v0.2.0+a3f1c9b`).
 
 ---
 
@@ -167,13 +167,17 @@ O CLI suporta dois modos de chamar o `assinador.jar`:
 
 ## 5. Ajuda integrada
 
-Cada comando tem ajuda embutida:
+Cada comando tem ajuda embutida com exemplos de uso:
 
-```bash
+```powershell
 go run ./cmd/assinatura --help
 go run ./cmd/assinatura sign --help
 go run ./cmd/assinatura validate --help
+go run ./cmd/simulador --help
+go run ./cmd/simulador start --help
 ```
+
+O `--help` mostra a descrição do comando, os parâmetros disponíveis e exemplos práticos de uso.
 
 ---
 

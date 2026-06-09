@@ -46,13 +46,9 @@ Resolva na ordem de prioridade. Os itens críticos comprometem a avaliação mes
 **Problema:** `internal/release/` está vazio. O `invoker/local.go` procura o JAR em `~/.hubsaude/` mas nada o coloca lá. Um usuário que clona o repositório não consegue usar `sign --local`.
 
 **O que fazer:**
-- [ ] Implementar `internal/release/jar.go` com função `EnsureJar() (string, error)`:
-  - Lê `release.json` remoto via URL estável (ver C-05)
-  - Compara versão com o que está em `~/.hubsaude/assinador.jar`
-  - Faz download apenas se versão diferente ou arquivo ausente
-  - Verifica checksum SHA-256 após download
-- [ ] Chamar `EnsureJar()` em `invoker/local.go` antes de `runJar`
-- [ ] Exibir progresso ao usuário durante o download
+- [x] Implementar `internal/release/jar.go` com `EnsureJar()`: lê release.json local/remoto, compara versão, baixa só se desatualizado, calcula SHA-256
+- [x] Chamar `EnsureJar()` em `invoker/local.go` antes de `runJar`
+- [x] Exibir progresso ao usuário durante o download
 
 **Referência:** `especificacao.md` US-03 — estratégia `release.json`; `criterios.md` E1 — *"Erros de execução (JAR ausente) são tratados com mensagens claras"*
 
@@ -63,13 +59,9 @@ Resolva na ordem de prioridade. Os itens críticos comprometem a avaliação mes
 **Problema:** `Resolve()` detecta o JDK mas não faz download quando ausente. Retorna erro sem provisionar.
 
 **O que fazer:**
-- [ ] Implementar `Download(platform string) error` em `internal/jdk/jdk.go`:
-  - Detecta plataforma (`windows/amd64`, `linux/amd64`, `darwin/amd64`)
-  - Usa URLs do Eclipse Temurin (Adoptium) conforme `release.json`
-  - Extrai o JDK em `~/.hubsaude/jdk/`
-  - Não baixa novamente se já estiver presente e válido
-- [ ] `Resolve()` deve chamar `Download()` automaticamente quando o JDK não for encontrado
-- [ ] Testar que `java -version` retorna 21 após o provisionamento
+- [x] Implementar download do JRE 21 em `internal/jdk/jdk.go`: detecta plataforma, baixa do Adoptium, extrai `.tar.gz`/`.zip` com proteção contra path traversal
+- [x] `Resolve()` chama download automático como terceiro estágio quando JDK não encontrado
+- [ ] Teste automatizado que valida `java -version` após provisionamento
 
 **Referência:** `especificacao.md` US-04; `criterios.md` — *"Versões mínimas declaradas e verificadas em runtime com erro amigável"*
 
@@ -96,7 +88,7 @@ Resolva na ordem de prioridade. Os itens críticos comprometem a avaliação mes
 - [x] Escrever `docs/adr/001-modo-servidor-como-padrao.md` — por que HTTP é o modo padrão
 - [x] Escrever `docs/adr/002-go-para-cli.md` — por que Go foi escolhido
 - [x] Escrever `docs/adr/003-porta-padrao.md` — por que porta 8080
-- [ ] Referenciar as ADRs no `README.md`
+- [x] Referenciar as ADRs no `README.md` com tabela linkada
 
 **Template mínimo (1 página cada):**
 ```
@@ -134,7 +126,7 @@ O que fica mais fácil e o que fica mais difícil com essa escolha.
 **O que fazer:**
 - [x] Adicionar `rootCmd.Version = version` em `cmd/assinatura/cmd/root.go`
 - [x] Criar `cmd/simulador/cmd/version.go` e adicionar `rootCmd.Version = version` no simulador
-- [ ] Incluir SHA curto do commit na versão (ex.: `v1.0.0+abc1234`) via ldflags no CI
+- [x] Incluir SHA curto do commit na versão (ex.: `v1.0.0+abc1234`) via ldflags no CI (`release.yml`)
 
 **Referência:** `criterios.md` I — *"Versão acessível via `--version` retornando algo rastreável (tag + SHA curto)"*
 
@@ -143,15 +135,7 @@ O que fica mais fácil e o que fica mais difícil com essa escolha.
 ### S-03 — Adicionar exemplos ao `--help`
 
 **O que fazer:**
-- [ ] Preencher o campo `Example` de cada `cobra.Command` com exemplos reais:
-  ```go
-  Example: `  # Assinar usando o servidor HTTP (padrão)
-    assinatura sign --content "documento.pdf"
-
-  # Assinar diretamente via JAR local
-    assinatura sign --content "documento.pdf" --local --token "meu-pin"`,
-  ```
-- [ ] Fazer para `sign`, `validate`, e comandos do `simulador`
+- [x] Preencher o campo `Example` de `sign`, `validate`, `simulador start`, `stop` e `status`
 
 **Referência:** `criterios.md` I — *"`--help` que ensina (com exemplos), não que lista flags"*
 
@@ -178,9 +162,9 @@ O que fica mais fácil e o que fica mais difícil com essa escolha.
 **Problema:** `release.yml` compila apenas `assinatura`. O `simulador` (mesmo que stub) deve estar nos artefatos.
 
 **O que fazer:**
-- [ ] Em `build.yml`, adicionar cross-compilation do `simulador` nos mesmos alvos
-- [ ] Em `release.yml`, adicionar build e publicação de `simulador-<versão>-<os>-<arch>`
-- [ ] Incluir binários do `simulador` no `checksums.txt` e assinar com Cosign
+- [x] Em `build.yml`, adicionar cross-compilation do `simulador` nos mesmos alvos
+- [x] Em `release.yml`, adicionar build e publicação de `simulador-<versão>-<os>-<arch>`
+- [x] Incluir binários do `simulador` no `checksums.txt` e assinar com Cosign
 
 **Referência:** `especificacao.md` seção 7, item 6 — artefatos executáveis incluem `simulador-*`
 
