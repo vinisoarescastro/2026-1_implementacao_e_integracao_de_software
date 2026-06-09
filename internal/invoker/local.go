@@ -9,6 +9,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/kyriosdata/runner/internal/jdk"
+	"github.com/kyriosdata/runner/internal/release"
 )
 
 // Result representa a resposta retornada pelo assinador.jar.
@@ -19,25 +22,31 @@ type Result struct {
 }
 
 // jarPath retorna o caminho para o assinador.jar.
-// Procura primeiro em ~/.hubsaude/, depois no diretório corrente.
+// Tenta provisionar automaticamente via release.json antes de buscar localmente.
 func jarPath() (string, error) {
-	home, err := os.UserHomeDir()
+	hubsaudeDir, err := jdk.HubSaudeDir()
 	if err == nil {
-		candidate := filepath.Join(home, ".hubsaude", "assinador.jar")
+		// Tenta garantir jar atualizado via download automático
+		if path, err := release.EnsureJar(hubsaudeDir); err == nil {
+			return path, nil
+		}
+
+		// Fallback: jar já presente sem checar versão
+		candidate := filepath.Join(hubsaudeDir, "assinador.jar")
 		if _, err := os.Stat(candidate); err == nil {
 			return candidate, nil
 		}
 	}
 
 	// Fallback: diretório corrente
-	local := "assinador.jar"
-	if _, err := os.Stat(local); err == nil {
-		return local, nil
+	if _, err := os.Stat("assinador.jar"); err == nil {
+		return "assinador.jar", nil
 	}
 
 	return "", fmt.Errorf(
-		"assinador.jar não encontrado em ~/.hubsaude/ nem no diretório corrente.\n" +
-			"Dica: execute o build do projeto Java com 'mvn package' e copie o jar para ~/.hubsaude/",
+		"assinador.jar não encontrado.\n" +
+			"  O Runner tentará baixá-lo automaticamente na próxima execução se houver conexão com a internet.\n" +
+			"  Alternativamente, compile com 'mvn -f assinador/pom.xml package' e copie para ~/.hubsaude/",
 	)
 }
 
