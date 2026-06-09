@@ -286,6 +286,18 @@ Diagramas detalhados: [`orientacoes_trabalho_disciplina/diagramas/`](orientacoes
 
 ---
 
+## Decisões de Arquitetura (ADRs)
+
+Decisões técnicas não óbvias estão registradas em [`docs/adr/`](docs/adr/):
+
+| ADR | Decisão |
+|---|---|
+| [001](docs/adr/001-modo-servidor-como-padrao.md) | Modo servidor HTTP como padrão de invocação |
+| [002](docs/adr/002-go-para-cli.md) | Go como linguagem dos CLIs |
+| [003](docs/adr/003-porta-padrao.md) | Porta padrão 8080 para o assinador.jar |
+
+---
+
 ## Referências
 
 - [Especificação do projeto](orientacoes_trabalho_disciplina/especificacao.md)

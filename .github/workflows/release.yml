@@ -62,10 +62,12 @@ jobs:
       - name: Build binários Go
         env:
           VERSION: ${{ steps.version.outputs.tag }}
+          SHA: ${{ github.sha }}
         run: |
           mkdir -p dist
-          LDFLAGS_ASSINATURA="-X github.com/kyriosdata/runner/cmd/assinatura/cmd.version=${VERSION}"
-          LDFLAGS_SIMULADOR="-X github.com/kyriosdata/runner/cmd/simulador/cmd.version=${VERSION}"
+          SHORT_SHA=${SHA::7}
+          LDFLAGS_ASSINATURA="-X github.com/kyriosdata/runner/cmd/assinatura/cmd.version=${VERSION}+${SHORT_SHA}"
+          LDFLAGS_SIMULADOR="-X github.com/kyriosdata/runner/cmd/simulador/cmd.version=${VERSION}+${SHORT_SHA}"
 
           GOOS=linux   GOARCH=amd64 go build -ldflags "${LDFLAGS_ASSINATURA}" -o dist/assinatura-${VERSION}-linux-amd64   ./cmd/assinatura
           GOOS=windows GOARCH=amd64 go build -ldflags "${LDFLAGS_ASSINATURA}" -o dist/assinatura-${VERSION}-windows-amd64.exe ./cmd/assinatura
