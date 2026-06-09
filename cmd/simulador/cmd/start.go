@@ -13,6 +13,11 @@ var startCmd = &cobra.Command{
 	Short: "Inicia o Simulador do HubSaúde",
 	Long: `Inicia o simulador.jar. Se o jar não estiver disponível localmente,
 faz o download automático da versão mais recente no GitHub Releases.`,
+	Example: `  # Iniciar o Simulador na porta padrão (8443)
+  simulador start
+
+  # Iniciar usando URL alternativa para download do simulador.jar
+  simulador start --source https://example.com/simulador.jar`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("simulador start — a ser implementado na Sprint 4 (US-03.1)")
 		return nil

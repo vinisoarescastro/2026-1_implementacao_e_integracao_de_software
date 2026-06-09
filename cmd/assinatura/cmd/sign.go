@@ -20,6 +20,14 @@ var signCmd = &cobra.Command{
 	Short: "Cria uma assinatura digital simulada",
 	Long: `Envia uma requisição de assinatura digital ao assinador.jar.
 Por padrão usa o modo servidor (HTTP). Use --local para invocação direta via java -jar.`,
+	Example: `  # Assinar via servidor HTTP (padrão — requer assinatura start)
+  assinatura sign --content "contrato.pdf"
+
+  # Assinar invocando o JAR diretamente (sem servidor)
+  assinatura sign --content "contrato.pdf" --local
+
+  # Assinar com token de dispositivo criptográfico
+  assinatura sign --content "contrato.pdf" --token "meu-pin" --local`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if signContent == "" {
 			return fmt.Errorf("o parâmetro --content é obrigatório")

@@ -20,6 +20,11 @@ var validateCmd = &cobra.Command{
 	Short: "Valida uma assinatura digital simulada",
 	Long: `Envia uma requisição de validação ao assinador.jar.
 Por padrão usa o modo servidor (HTTP). Use --local para invocação direta via java -jar.`,
+	Example: `  # Validar via servidor HTTP (padrão — requer assinatura start)
+  assinatura validate --content "contrato.pdf" --signature "MOCKED_SIGNATURE_BASE64_=="
+
+  # Validar invocando o JAR diretamente (sem servidor)
+  assinatura validate --content "contrato.pdf" --signature "MOCKED_SIGNATURE_BASE64_==" --local`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if validateContent == "" {
 			return fmt.Errorf("o parâmetro --content é obrigatório")
